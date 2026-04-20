@@ -22,3 +22,13 @@ data.json
 .DS_Store
 
 md/
+release/
+
+# Сгенерированные файлы иконок (создаются скриптом prebuild)
+# Игнорируем их, чтобы не нагружать репозиторий мегабайтами кода при каждом пуше
+src/icons/BrandIcons.ts
+src/icons/ExtendedIcons.ts
+scripts/lucide-baseline.json
+
+# Тестовое хранилище Obsidian (если вы решите тестировать плагин прямо в этой папке)
+.obsidian/

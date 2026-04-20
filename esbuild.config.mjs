@@ -1,6 +1,8 @@
 import esbuild from 'esbuild';
 import process from 'process';
 import builtins from 'builtin-modules';
+import fs from 'fs';
+import path from 'path';
 
 const banner =
 `/*
@@ -11,6 +13,15 @@ https://github.com/gfxholo/iconic
 `;
 
 const prod = (process.argv[2] === 'production');
+
+const manifestPath = './manifest.json';
+const manifestStr = fs.readFileSync(manifestPath, 'utf8');
+const manifest = JSON.parse(manifestStr);
+const releaseDir = prod ? `./release/v${manifest.version}` : '.';
+
+if (prod && !fs.existsSync(releaseDir)) {
+	fs.mkdirSync(releaseDir, { recursive: true });
+}
 
 const context = await esbuild.context({
 	banner: {
@@ -38,12 +49,20 @@ const context = await esbuild.context({
 	logLevel: 'info',
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
-	outfile: 'main.js',
+	outfile: path.join(releaseDir, 'main.js'),
 	minify: prod,
 });
 
 if (prod) {
 	await context.rebuild();
+	
+	// Copy extra files
+	fs.copyFileSync(manifestPath, path.join(releaseDir, 'manifest.json'));
+	if (fs.existsSync('./styles.css')) {
+		fs.copyFileSync('./styles.css', path.join(releaseDir, 'styles.css'));
+	}
+	console.log(`\n🎉 Build complete! Release files are located in '${releaseDir}'`);
+	
 	process.exit(0);
 } else {
 	await context.watch();

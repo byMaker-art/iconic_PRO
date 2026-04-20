@@ -1,98 +1,102 @@
-# Iconic
+# Iconic PRO
 
-A plugin for iconophiles, designed to blend seamlessly with vanilla Obsidian.
+Плагин для настоящих ценителей иконок (форк оригинального [Iconic](https://github.com/gfxholo/iconic)), созданный для идеальной интеграции с интерфейсом Obsidian.
 
-Click almost any icon on a tab, sidebar, ribbon, or the title bar to swap in one of the 1,700+ [Lucide icons](https://lucide.dev/) included in the app, or one of the 1,900+ [emojis](https://www.unicode.org/emoji/charts/full-emoji-list.html) that your device supports.
+Нажмите на любую область — вкладку, боковую панель, ленту команд (ribbon) или заголовок окна — чтобы установить одну из тысяч иконок. 
+
+В этой версии плагина **Iconic PRO** мы включили сразу несколько потрясающих библиотек, предоставляющих огромный масштаб кастомизации:
+- **[Lucide icons](https://lucide.dev/)** (~1,700+ иконок) — классическая библиотека Obsidian.
+- **[Simple Icons](https://simpleicons.org/)** (~3,200+ иконок) — популярнейшие логотипы и бренды (GitHub, YouTube, Notion и другие).
+- **[Phosphor Icons](https://phosphoricons.com/)** (~1,100+ иконок) — универсальные пиктограммы на любой случай с выверенным стилем.
+- Множество актуальных **[эмодзи](https://www.unicode.org/emoji/charts/full-emoji-list.html)** (~1,900+), поддерживаемых вашим устройством.
 
 ![Banner](banner.webp)
 
-> ⤿ Themes: [Ayu Light & Mirage](https://github.com/taronull/ayu-obsidian) / [Fancy-a-Story](https://github.com/ElsaTam/obsidian-fancy-a-story) / [Primary](https://github.com/primary-theme/obsidian)
+> ⤿ Темы на скриншоте: [Ayu Light & Mirage](https://github.com/taronull/ayu-obsidian) / [Fancy-a-Story](https://github.com/ElsaTam/obsidian-fancy-a-story) / [Primary](https://github.com/primary-theme/obsidian)
 
-Includes language support for English, Arabic, German, Spanish, French, Indonesian, Japanese, Russian, Ukrainian, and Simplified Chinese. Most of these languages are currently machine-translated, but if you can supply more accurate translations, absolutely send a message or a pull request :)
+Плагин поддерживает множество языков (включая русский). Большая часть интерфейса переведена вручную, некоторые языки покрываются машинным переводом. Приветствуются ваши [Pull Request](https://github.com/byMaker-art/iconic_PRO) с улучшениями.
 
-## Supported items
+## Поддерживаемые элементы
 
-- Tabs 📑
-- Files & Folders 📝📂
-- Bookmarks & Groups 🔖📂
-- Tags 🏷️
-- Properties 📦
-- Ribbon commands 🎀
-- Minimize/Maximize/Close buttons 🪟
-- Sidebar toggles ◀️▶️
-- Help/Settings buttons ❔⚙️
-- Pin buttons (on tablets) 📌
+- Вкладки (Tabs) 📑
+- Файлы и Папки 📝📂
+- Закладки и Группы 🔖📂
+- Теги 🏷️
+- Свойства (Properties) 📦
+- Кнопки на ленте команд (Ribbon) 🎀
+- Кнопки управления окном (Свернуть/Развернуть/Закрыть) 🪟
+- Переключатели боковых панелей ◀️▶️
+- Кнопки настроек и справки ❔⚙️
+- Кнопки закрепления (на планшетах) 📌
 
-## How to use
+## Как использовать
 
-### Changing an icon
+### Изменение иконки
 
-Secondary-click an item whose icon you want to change, then click `Change icon` from the menu. You can open menus on mobile by pressing & holding an item. Certain lists like Files, Bookmarks, and Properties let you hold <kbd>Alt</kbd> or <kbd>⇧ Shift</kbd> to select multiple items at once.
+Кликните правой кнопкой мыши (или долгим нажатием на мобильном) по элементу, иконку которого хотите изменить, и выберите в меню пункт `Change icon` (или `Изменить иконку`). В некоторых списках, таких как Файлы, Закладки и Свойства, вы можете зажать клавишу <kbd>Alt</kbd> или <kbd>⇧ Shift</kbd> (или использовать мышку в режиме **drag-select** рамкой), чтобы выделить сразу несколько элементов.
 
-Every icon is searchable by name. You can filter between icons and/or emojis by clicking the bottom two toggles. When you find an icon that sings for you, click it to confirm.
+Каждую иконку можно найти по названию. Вы можете легко отфильтровать элементы: стандартные иконки, эмодзи, логотипы брендов (`Brands`) или расширенный пакет (`Extended`), переключая кнопки под поиском. **История** ваших последних использованных иконок всегда закреплена в верхней части окна! 
 
-You can also choose one of nine optional colors per icon. These colors follow the CSS theme of your vault, so they adjust automatically when it changes. If you prefer a specific RGB color, secondary-click the bubble to open the full color picker.
+Дополнительно вы можете выбрать нужный цвет для вашей иконки. Цвета синхронизируются с вашей CSS-темой хранилища, поэтому автоматически адаптируются при её смене. Если вы хотите специфический RGB-цвет, кликните по текущему кружку цвета правой кнопкой мыши, чтобы открыть полную палитру.
 
 ![Icon picker](icon-picker.webp)
 
-The icon picker will also display a warning if a rule in your rulebook is overruling its icon. To learn about that feature, see below.
+Окно выбора иконок также покажет предупреждение, если какая-либо программа автоматизации (Правила/Rules) переписывает вашу иконку. 
 
-### Setting up rules
+### Настройка правил автоматизации
 
-You can set up a rulebook to automate your file & folder icons based on a variety of conditions, like their name, their extension, their parent folder, their tags, their property values, the date you've created or modified them, and even the current time of day. Automated icons never remove your custom icons — only replace them visually — so you can be as experimental as you want.
+Вы можете настроить **Свод правил (Rulebook)**, чтобы автоматически применять иконки к файлам и папкам в зависимости от их параметров: названия, расширения, расположения, тегов, свойств, даты создания, редактирования и даже текущего времени суток. Автоматические иконки никогда не удаляют ваши индивидуальные иконки — они переопределяют их только визуально, поэтому вы можете смело экспериментировать.
 
-Open the rulebook from the ribbon, from the plugin settings, or by using the `Open rulebook` command. There are currently two pages in the rulebook: `File rules` and `Folder rules`, which affect files and folders respectively.
+Откройте Свод правил из панели приложения (ribbon), из настроек плагина, или с помощью соответствующей команды. По умолчанию там есть 2 страницы: `File rules` и `Folder rules`.
 
 ![Rule picker](rule-picker.webp)
 
-Click the green (+) to add a new rule, or right-click an existing rule to see more actions.
+Нажмите на зеленое (+), чтобы добавить новое правило, или нажмите правой кнопкой по существующему, чтобы увидеть действия. Правила применяются сверху вниз по приоритету, так что вы можете легко перемещать их перетаскиванием (drag-and-drop).
 
-Every rule has a name, and an icon, which will overrule the icon of anything that it matches. You can enable and disable a rule using its toggle. Rules at the top of the list have the highest priority, so drag them around as needed!
+### Редактирование правил
 
-### Editing a rule
-
-To start editing a rule, click the ⚙️ beside it.
+Нажмите ⚙️ напротив нужного правила, чтобы открыть редактор.
 
 ![Rule editor](rule-editor.webp)
 
-You can edit the rule's conditions in this window. A condition is a true or false test — it either matches, or it doesn't, and you can add any number of conditions to a rule. Rules interpret their conditions based on their `All` / `Any` / `None` setting. For example, if you want a rule to match when *any* of its conditions match, click the `Any` button. You can always see what your rule is matching by clicking the `Matches` button at the bottom.
+Здесь вы найдете различные фильтры. Вы можете добавить любое число условий и указать, как их проверять: на совпадение **всех** (`All`), **любого** (`Any`) или **ни одного** (`None`). Чтобы проверить, какие файлы сейчас подпадают под правило, кликните кнопку `Matches` снизу.
 
-When you're using Obsidian, if your rule is overruling an icon, you can secondary-click that icon and choose `Edit rule` to return to this window quickly.
+Доступные условия (Conditions):
+- `Icon` проверяет иконку
+- `Color` проверяет цвет
+- `Name` проверяет простое название `File`/`Folder`
+- `Filename` проверяет полное название с расширением `File.md`
+- `Extension` проверяет расширение файлов (например `md`, `canvas`, `jpg`)
+- `Folder tree` проверяет путь `Path/Leading/To/Your/`
+- `Path in vault` проверяет полный путь
+- И многое другое: заголовки, ссылки, теги, свойства и даты (встроенные часы каждую минуту проверяют время суток, обеспечивая поддержку динамических иконок).
 
-There are several types of conditions you can add to a rule:
+## Отличия от Iconize
+Iconic и Iconize могут менять иконки файлов и папок, но Iconic PRO дополнительно может:
+- Менять иконки прямым интерфейсным кликом.
+- Указывать и иконки, и их цвета в едином меню.
+- Динамически адаптировать цвета под системную или пользовательскую тему.
+- Предоставлять продвинутую систему логических правил (Rules).
+- Работать с вкладками плагинов, свойствами, тегами и командами UI.
+- Дарить вам более 4,300+ дополнительных высококачественных иконок!
 
-- `Icon` checks the icon set to a file/folder
-- `Color` checks the color set to a file/folder
-- `Name` checks the simple name of a `File`/`Folder`
-- `Filename` checks the full name of a `File.md`
-- `Extension` checks the file extension, like `md`, `canvas`, `jpg`, etc.
-- `Folder tree` checks the initial `Path/Leading/To/Your/` file
-- `Path in vault` checks the entire `Path/Leading/To/Your/File.md`
-- `Headings` checks for `# Headings` inside a note
-- `Links` checks for `[[Links]]` inside a note
-- `Embeds` checks for `![[Embeds]]` inside a note
-- `Tags` checks for tags inside a note, including `#hashtags` and the `tags` property
-- `Properties...` checks the value of a specific property inside a note
-- `Date created` checks the date & time a file was created
-- `Date modified` checks the date & time a file was modified
-- `System clock` checks the date & time on your device
+## Авторы
+Оригинальный плагин разработан **Holo**. <br/>
+Данный форк-проект разработан и поддерживается **[byMaker-art](https://github.com/byMaker-art)**. 
 
-Date & time conditions are checked once every minute, so you can use them to modify your icons in real time.
+Библиотеки иконок:
+- [Lucide Icons](https://lucide.dev/)
+- [Simple Icons](https://simpleicons.org/)
+- [Phosphor Icons](https://phosphoricons.com/)
 
-## What makes this plugin different from [Iconize](https://github.com/FlorianWoelki/obsidian-iconize)?
+---
 
-Iconic and Iconize can both change the icons & colors of files & folders, and automate icons based on their filepath. But Iconic can also:
+# История версий (Changelog)
 
-- Change icons by clicking them directly
-- Change icons & colors from the same dialog
-- Dynamically shift colors to match your theme
-- Automate icons using a conditional rule system
-- Change icons of plugin tabs, tags, properties, ribbon commands, and window buttons
-
-### Can I use both plugins together?
-
-Sort of, just expect a few visual bugs! They currently do some fighting over control of tab icons and the Bookmarks pane.
-
-## License
-
-This plugin is released under an [MIT No Attribution](https://choosealicense.com/licenses/mit-0/) license, which means you're free to modify and share its source code without crediting the authors of this repository. It also protects those authors from liability for damages, so I recommend using a similar license if you republish this code.
+### [v2.0.2] - 20 Апреля 2026
+- **Улучшенная История Иконок**: Раздел «History» теперь всегда виден и закреплен на самом верху модального окна `IconPicker` для быстрого доступа к любимым иконкам.
+- **Поддержка Drag-and-Select**: Появилась возможность выделять сразу несколько папок и файлов прямоугольной рамкой в проводнике (File Explorer) для их массового переименования или перекрашивания.
+- **Автоматическая сборка релизов**: Оптимизирована компиляция — каждый билд (`npm run build`) теперь автоматически генерирует полностью готовую копию плагина в папке `release/v2.0.2/`.
+- **Новые библиотеки иконок**: Полностью интегрированы многомерные коллекции иконок **Phosphor** и **Simple Icons** (включая умный захват брендовых цветов по умолчанию).
+- **Обновление авторов**: Добавлен новый соавтор форка `byMaker-art` и актуальная ссылка на репозиторий [iconic_PRO](https://github.com/byMaker-art/iconic_PRO).
+- **Новый Основной README**: Вся техническая документация переведена на русский язык для большего удобства.

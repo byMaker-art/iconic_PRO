@@ -284,6 +284,26 @@ export default class IconPicker extends Modal {
 			}
 		}
 
+		// History
+		this.historyHeading = this.contentEl.createDiv({ cls: 'iconic-history-heading' });
+		this.historyHeading.setText(STRINGS.iconPicker.history ?? 'History');
+		const clearHistory = this.historyHeading.createSpan({ cls: 'iconic-history-clear', text: STRINGS.iconPicker.clearHistory ?? 'Clear' });
+		this.iconManager.setEventListener(clearHistory, 'click', () => {
+			this.plugin.settings.iconHistory = [];
+			this.plugin.saveSettings();
+			this.updateHistory();
+		});
+		this.historySetting = new Setting(this.contentEl);
+		this.historySetting.settingEl.addClass('iconic-search-results');
+		const historyEl = this.historySetting.settingEl;
+		this.iconManager.setEventListener(historyEl, 'wheel', event => {
+			if (activeDocument.body.hasClass('mod-rtl')) {
+				historyEl.scrollLeft -= event.deltaY;
+			} else {
+				historyEl.scrollLeft += event.deltaY;
+			}
+		}, { passive: true });
+
 		// Search
 		this.searchSetting = new Setting(this.contentEl)
 			.addExtraButton(colorResetButton => { colorResetButton
@@ -354,26 +374,6 @@ export default class IconPicker extends Modal {
 			event.deltaY + event.deltaX < 0 ? this.previousColor() : this.nextColor();
 		}, { passive: true });
 		this.updateColorPicker();
-
-		// History
-		this.historyHeading = this.contentEl.createDiv({ cls: 'iconic-history-heading' });
-		this.historyHeading.setText(STRINGS.iconPicker.history ?? 'History');
-		const clearHistory = this.historyHeading.createSpan({ cls: 'iconic-history-clear', text: STRINGS.iconPicker.clearHistory ?? 'Clear' });
-		this.iconManager.setEventListener(clearHistory, 'click', () => {
-			this.plugin.settings.iconHistory = [];
-			this.plugin.saveSettings();
-			this.updateHistory();
-		});
-		this.historySetting = new Setting(this.contentEl);
-		this.historySetting.settingEl.addClass('iconic-search-results');
-		const historyEl = this.historySetting.settingEl;
-		this.iconManager.setEventListener(historyEl, 'wheel', event => {
-			if (activeDocument.body.hasClass('mod-rtl')) {
-				historyEl.scrollLeft -= event.deltaY;
-			} else {
-				historyEl.scrollLeft += event.deltaY;
-			}
-		}, { passive: true });
 
 		// Search results
 		this.searchResultsSetting = new Setting(this.contentEl);
@@ -765,19 +765,17 @@ export default class IconPicker extends Modal {
 		if (!this.historySetting || !this.historyHeading) return;
 
 		const history = this.plugin.settings.iconHistory;
-		const query = this.searchField.getValue();
 		
-		// Hide history if searching or if empty
-		if (history.length === 0 || query) {
-			this.historySetting.settingEl.hide();
-			this.historyHeading.hide();
-			return;
-		}
-		
+		// Always show history
 		this.historySetting.settingEl.show();
 		this.historyHeading.show();
 		
 		this.historySetting.clear();
+
+		if (history.length === 0) {
+			this.historySetting.settingEl.createDiv({ text: 'No history yet', cls: 'iconic-empty-state', attr: { style: 'opacity: 0.5; padding: 0.5em 1em; margin: 0 auto;' } });
+			return;
+		}
 		for (const icon of history) {
 			let iconName = icon;
 			if (ICONS.has(icon)) iconName = ICONS.get(icon)!;
