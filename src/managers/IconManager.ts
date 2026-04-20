@@ -1,5 +1,5 @@
 import { App, setIcon } from 'obsidian';
-import IconicPlugin, { Item, Icon, ICONS, EMOJIS } from 'src/IconicPlugin';
+import IconicPlugin, { Item, Icon, ICONS, EMOJIS, BRAND_ICONS, EXTENDED_ICONS } from 'src/IconicPlugin';
 import ColorUtils from 'src/ColorUtils';
 
 /**
@@ -32,7 +32,13 @@ export default abstract class IconManager {
 		iconEl.addClass('iconic-icon');
 
 		if (item.icon) {
-			if (ICONS.has(item.icon)) {
+			if (item.icon.startsWith('si-')) {
+				this.renderBrandIcon(item, iconEl);
+				iconEl.show();
+			} else if (item.icon.startsWith('ph-')) {
+				this.renderExtendedIcon(item, iconEl);
+				iconEl.show();
+			} else if (ICONS.has(item.icon)) {
 				setIcon(iconEl, item.icon);
 			} else if (EMOJIS.has(item.icon)) {
 				iconEl.empty();
@@ -70,6 +76,35 @@ export default abstract class IconManager {
 		} else {
 			this.stopEventListener(iconEl, 'click');
 		}
+	}
+
+	private renderBrandIcon(item: Icon, iconEl: HTMLElement): void {
+		const iconData = BRAND_ICONS.get(item.icon!);
+		if (!iconData) return;
+		iconEl.empty();
+		const color = item.color 
+			? ColorUtils.toRgb(item.color) 
+			: iconData.brandColor;
+		const svgEl = iconEl.createSvg('svg', {
+			attr: { viewBox: '0 0 24 24', fill: 'currentColor' }
+		});
+		svgEl.innerHTML = iconData.svg;
+		svgEl.style.color = color;
+		svgEl.style.width = 'var(--icon-size)';
+		svgEl.style.height = 'var(--icon-size)';
+	}
+
+	private renderExtendedIcon(item: Icon, iconEl: HTMLElement): void {
+		const svgContent = EXTENDED_ICONS.get(item.icon!);
+		if (!svgContent) return;
+		iconEl.empty();
+		const svgEl = iconEl.createSvg('svg', {
+			attr: { viewBox: '0 0 256 256', fill: 'currentColor' }
+		});
+		svgEl.innerHTML = svgContent;
+		if (item.color) svgEl.style.color = ColorUtils.toRgb(item.color);
+		svgEl.style.width = 'var(--icon-size)';
+		svgEl.style.height = 'var(--icon-size)';
 	}
 
 	/**

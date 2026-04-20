@@ -21,6 +21,10 @@ import RulePicker from 'src/dialogs/RulePicker';
 export const ICONS = new Map<string, string>();
 export { EMOJIS };
 export { STRINGS };
+export { BRAND_ICONS } from 'src/icons/BrandIcons';
+export { EXTENDED_ICONS } from 'src/icons/ExtendedIcons';
+import { BRAND_ICONS } from 'src/icons/BrandIcons';
+import { EXTENDED_ICONS } from 'src/icons/ExtendedIcons';
 export type Category = 'app' | 'tab' | 'file' | 'folder' | 'group' | 'search' | 'graph' | 'url' | 'tag' | 'property' | 'ribbon' | 'rule';
 export type AppItemId = 'help' | 'settings' | 'pin' | 'sidebarLeft' | 'sidebarRight' | 'minimize' | 'maximize' | 'unmaximize' | 'close';
 
@@ -100,8 +104,14 @@ interface IconicSettings {
 	dialogState: {
 		iconMode: boolean;
 		emojiMode: boolean;
+		brandMode: boolean;
+		extendedMode: boolean;
 		rulePage: Category;
 	},
+	enableBrandIcons: boolean;
+	enableExtendedIcons: boolean;
+	iconHistory: string[];
+	maxIconHistory: number;
 	appIcons: Record<string, { icon?: string, color?: string }>;
 	tabIcons: Record<string, { icon?: string, color?: string }>;
 	fileIcons: Record<string, { icon?: string, color?: string, unsynced?: string[] }>;
@@ -163,8 +173,14 @@ const DEFAULT_SETTINGS: IconicSettings = {
 	dialogState: {
 		iconMode: true,
 		emojiMode: false,
+		brandMode: false,
+		extendedMode: false,
 		rulePage: 'file',
 	},
+	enableBrandIcons: true,
+	enableExtendedIcons: true,
+	iconHistory: [],
+	maxIconHistory: 50,
 	appIcons: {},
 	tabIcons: {},
 	fileIcons: {},
@@ -368,6 +384,10 @@ export default class IconicPlugin extends Plugin {
 					this.ruleManager.updateRulings(page);
 				}
 			}));
+
+			if (BRAND_ICONS.size === 0) {
+				console.warn('[Iconic PRO] Brand icons not built. Run: npm run prebuild');
+			}
 		});
 
 		this.registerEvent(this.app.workspace.on('css-change', () => {
@@ -598,6 +618,19 @@ export default class IconicPlugin extends Plugin {
 		if (this.ruleManager.triggerRulings(page, 'modify')) {
 			this.refreshManagers(page);
 		}
+	}
+
+	/**
+	 * Add an icon to the recent history, keeping history size under limit.
+	 */
+	addToIconHistory(iconId: string | null): void {
+		if (!iconId) return;
+		this.settings.iconHistory.remove(iconId);
+		this.settings.iconHistory.unshift(iconId);
+		if (this.settings.iconHistory.length > this.settings.maxIconHistory) {
+			this.settings.iconHistory = this.settings.iconHistory.slice(0, this.settings.maxIconHistory);
+		}
+		this.saveSettings();
 	}
 
 	/**

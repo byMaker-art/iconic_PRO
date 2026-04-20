@@ -231,8 +231,49 @@ export default class IconicSettingTab extends PluginSettingTab {
 				})
 			);
 
+		// HEADING: Icon libraries
+		new Setting(this.containerEl).setName(STRINGS.settings.headingIconLibraries ?? 'Icon libraries').setHeading();
+
+		// Enable brand icons
+		new Setting(this.containerEl)
+			.setName(STRINGS.settings.enableBrandIcons?.name ?? 'Enable brand icons')
+			.setDesc(STRINGS.settings.enableBrandIcons?.desc ?? 'Show icons for services like GitHub, Stripe, Discord, etc.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableBrandIcons)
+				.onChange(value => {
+					this.plugin.settings.enableBrandIcons = value;
+					this.plugin.saveSettings();
+				})
+			);
+
+		// Enable extended icons
+		new Setting(this.containerEl)
+			.setName(STRINGS.settings.enableExtendedIcons?.name ?? 'Enable extended icons')
+			.setDesc(STRINGS.settings.enableExtendedIcons?.desc ?? 'Show an extended set of general-purpose icons (Phosphor).')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableExtendedIcons)
+				.onChange(value => {
+					this.plugin.settings.enableExtendedIcons = value;
+					this.plugin.saveSettings();
+				})
+			);
+
 		// HEADING: Icon picker
 		new Setting(this.containerEl).setName(STRINGS.settings.headingIconPicker).setHeading();
+
+		// Icon history size
+		new Setting(this.containerEl)
+			.setName(STRINGS.settings.maxIconHistory?.name ?? 'Icon history size')
+			.setDesc(STRINGS.settings.maxIconHistory?.desc ?? 'Choose how many recently used icons to remember.')
+			.addSlider(slider => slider
+				.setLimits(10, 200, 10)
+				.setValue(this.plugin.settings.maxIconHistory)
+				.setDynamicTooltip()
+				.onChange(value => {
+					this.plugin.settings.maxIconHistory = value;
+					this.plugin.saveSettings();
+				})
+			);
 
 		// Show item name
 		new Setting(this.containerEl)

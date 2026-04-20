@@ -228,6 +228,12 @@ export default class Strings {
 		resetColor: 'Reset color',
 		toggleIcons: 'Toggle icons',
 		toggleEmojis: 'Toggle emojis',
+		toggleBrands: 'Toggle brand icons',
+		toggleExtended: 'Toggle extended icons',
+		history: 'History',
+		clearHistory: 'Clear history',
+		brands: 'Brands',
+		extended: 'Extended',
 		icons: 'Icons',
 		emojis: 'Emojis',
 		mixed: 'Mixed',
@@ -311,6 +317,15 @@ export default class Strings {
 			name: 'Bigger icons',
 			desc: 'Show bigger icons than the default UI.',
 		},
+		headingIconLibraries: 'Icon libraries',
+		enableBrandIcons: {
+			name: 'Enable brand icons',
+			desc: 'Show icons for services like GitHub, Stripe, Discord, etc.',
+		},
+		enableExtendedIcons: {
+			name: 'Enable extended icons',
+			desc: 'Show an extended set of general-purpose icons (Phosphor).',
+		},
 		clickableIcons: {
 			nameDesktop: 'Clickable icons',
 			nameMobile: 'Tappable icons',
@@ -361,6 +376,10 @@ export default class Strings {
 			desc: 'Show folder icons in "Move file" dialogs.',
 		},
 		headingIconPicker: 'Icon picker',
+		maxIconHistory: {
+			name: 'Icon history size',
+			desc: 'Choose how many recently used icons to remember.',
+		},
 		showItemName: {
 			name: 'Show item name',
 			desc: 'Show the name of the item being edited.',

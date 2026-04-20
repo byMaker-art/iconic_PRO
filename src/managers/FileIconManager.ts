@@ -14,6 +14,14 @@ export default class FileIconManager extends IconManager {
 	 */
 	private refreshTimerId: number;
 
+	private dragSelectState = {
+		active: false,
+		startX: 0,
+		startY: 0,
+		overlayEl: null as HTMLElement | null,
+		selectedEls: new Set<HTMLElement>(),
+	};
+
 	constructor(plugin: IconicPlugin) {
 		super(plugin);
 		this.plugin.registerEvent(this.app.workspace.on('file-menu', (menu, tFile) => {
@@ -58,7 +66,110 @@ export default class FileIconManager extends IconManager {
 				}
 			}
 		});
+		this.setupDragSelect(this.containerEl);
 		this.refreshIcons();
+	}
+
+	private setupDragSelect(containerEl: HTMLElement): void {
+		this.setEventListener(containerEl, 'mousedown', e => {
+			if ((e.target as HTMLElement).closest('.tree-item-self')) return;
+			if (e.button !== 0) return;
+			this.startDragSelect(e);
+		});
+		
+		this.setEventListener(activeDocument, 'mousemove', e => {
+			if (!this.dragSelectState.active) return;
+			this.updateDragSelect(e);
+		});
+		
+		this.setEventListener(activeDocument, 'mouseup', () => {
+			if (!this.dragSelectState.active) return;
+			this.endDragSelect();
+		});
+	}
+
+	private startDragSelect(e: MouseEvent): void {
+		this.dragSelectState.active = true;
+		this.dragSelectState.startX = e.clientX;
+		this.dragSelectState.startY = e.clientY;
+		this.dragSelectState.selectedEls.clear();
+
+		const overlay = createDiv({ cls: 'iconic-drag-select-overlay' });
+		overlay.style.left = `${e.clientX}px`;
+		overlay.style.top = `${e.clientY}px`;
+		overlay.style.width = '0px';
+		overlay.style.height = '0px';
+		activeDocument.body.appendChild(overlay);
+		this.dragSelectState.overlayEl = overlay;
+	}
+
+	private updateDragSelect(e: MouseEvent): void {
+		const { startX, startY, overlayEl, selectedEls } = this.dragSelectState;
+		if (!overlayEl || !this.containerEl) return;
+
+		const currentX = e.clientX;
+		const currentY = e.clientY;
+
+		const left = Math.min(startX, currentX);
+		const top = Math.min(startY, currentY);
+		const width = Math.abs(currentX - startX);
+		const height = Math.abs(currentY - startY);
+
+		overlayEl.style.left = `${left}px`;
+		overlayEl.style.top = `${top}px`;
+		overlayEl.style.width = `${width}px`;
+		overlayEl.style.height = `${height}px`;
+
+		const rect = overlayEl.getBoundingClientRect();
+
+		const items = this.containerEl.findAll('.tree-item-self');
+		for (const item of items) {
+			const itemRect = item.getBoundingClientRect();
+			const intersect = !(rect.right < itemRect.left || 
+								rect.left > itemRect.right || 
+								rect.bottom < itemRect.top || 
+								rect.top > itemRect.bottom);
+
+			if (intersect) {
+				if (!selectedEls.has(item)) {
+					selectedEls.add(item);
+					item.addClass('iconic-drag-selected');
+				}
+			} else {
+				if (selectedEls.has(item)) {
+					selectedEls.delete(item);
+					item.removeClass('iconic-drag-selected');
+				}
+			}
+		}
+	}
+
+	private endDragSelect(): void {
+		this.dragSelectState.active = false;
+		if (this.dragSelectState.overlayEl) {
+			this.dragSelectState.overlayEl.remove();
+			this.dragSelectState.overlayEl = null;
+		}
+
+		if (this.dragSelectState.selectedEls.size > 0) {
+			const files: FileItem[] = [];
+			for (const el of this.dragSelectState.selectedEls) {
+				el.removeClass('iconic-drag-selected');
+				const id = el.dataset.path;
+				if (id) {
+					const fileItem = this.plugin.getFileItem(id);
+					if (fileItem) files.push(fileItem);
+				}
+			}
+			this.dragSelectState.selectedEls.clear();
+
+			if (files.length > 0) {
+				IconPicker.openMulti(this.plugin, files, (newIcon, newColor) => {
+					this.plugin.saveFileIcons(files, newIcon, newColor);
+					this.plugin.refreshManagers('file', 'folder');
+				});
+			}
+		}
 	}
 
 	/**

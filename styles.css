@@ -248,6 +248,21 @@ a.tag {
 	margin-inline-start: auto;
 }
 
+/* Drag select */
+.iconic-drag-select-overlay {
+	position: fixed;
+	border: 1px solid var(--interactive-accent);
+	background-color: rgba(var(--interactive-accent-rgb), 0.1);
+	pointer-events: none;
+	z-index: 1000;
+	border-radius: var(--radius-s);
+}
+
+.tree-item-self.iconic-drag-selected {
+	background-color: var(--background-modifier-hover);
+	border-radius: var(--radius-s);
+}
+
 /* Search results container */
 .iconic-search-results {
 	overflow-x: scroll;

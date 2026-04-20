@@ -1,5 +1,5 @@
 import { ButtonComponent, ColorComponent, ExtraButtonComponent, Hotkey, Menu, Modal, Platform, Setting, TextComponent, displayTooltip, prepareFuzzySearch, setTooltip } from 'obsidian';
-import IconicPlugin, { Category, Item, Icon, ICONS, EMOJIS, STRINGS } from 'src/IconicPlugin';
+import IconicPlugin, { Category, Item, Icon, ICONS, EMOJIS, BRAND_ICONS, EXTENDED_ICONS, STRINGS } from 'src/IconicPlugin';
 import ColorUtils, { COLORS } from 'src/ColorUtils';
 import { RuleItem } from 'src/managers/RuleManager';
 import IconManager from 'src/managers/IconManager';
@@ -88,8 +88,12 @@ export default class IconPicker extends Modal {
 	private searchField: TextComponent;
 	private iconModeButton: ExtraButtonComponent;
 	private emojiModeButton: ExtraButtonComponent;
+	private brandModeButton?: ExtraButtonComponent;
+	private extendedModeButton?: ExtraButtonComponent;
 	private mobileModeButton: ButtonComponent;
 	private colorPickerEl: HTMLElement;
+	private historySetting?: Setting;
+	private historyHeading?: HTMLElement;
 
 	// State
 	private colorPickerPaused = false;
@@ -351,6 +355,26 @@ export default class IconPicker extends Modal {
 		}, { passive: true });
 		this.updateColorPicker();
 
+		// History
+		this.historyHeading = this.contentEl.createDiv({ cls: 'iconic-history-heading' });
+		this.historyHeading.setText(STRINGS.iconPicker.history ?? 'History');
+		const clearHistory = this.historyHeading.createSpan({ cls: 'iconic-history-clear', text: STRINGS.iconPicker.clearHistory ?? 'Clear' });
+		this.iconManager.setEventListener(clearHistory, 'click', () => {
+			this.plugin.settings.iconHistory = [];
+			this.plugin.saveSettings();
+			this.updateHistory();
+		});
+		this.historySetting = new Setting(this.contentEl);
+		this.historySetting.settingEl.addClass('iconic-search-results');
+		const historyEl = this.historySetting.settingEl;
+		this.iconManager.setEventListener(historyEl, 'wheel', event => {
+			if (activeDocument.body.hasClass('mod-rtl')) {
+				historyEl.scrollLeft -= event.deltaY;
+			} else {
+				historyEl.scrollLeft += event.deltaY;
+			}
+		}, { passive: true });
+
 		// Search results
 		this.searchResultsSetting = new Setting(this.contentEl);
 		this.searchResultsSetting.settingEl.addClass('iconic-search-results');
@@ -407,19 +431,42 @@ export default class IconPicker extends Modal {
 			this.updateMobileSearchMode();
 		} else {
 			this.iconModeButton = new ExtraButtonComponent(buttonContainerEl)
-				.setTooltip(STRINGS.iconPicker.toggleIcons, { placement: 'top', delay: 300 })
+				.setTooltip(STRINGS.iconPicker.toggleIcons ?? 'Icons', { placement: 'top', delay: 300 })
 				.onClick(() => {
 					dialogState.iconMode = !dialogState.iconMode;
 					this.updateDesktopSearchMode();
 				});
 			this.iconModeButton.extraSettingsEl.tabIndex = 0;
 			this.emojiModeButton = new ExtraButtonComponent(buttonContainerEl)
-				.setTooltip(STRINGS.iconPicker.toggleEmojis, { placement: 'top', delay: 300 })
+				.setTooltip(STRINGS.iconPicker.toggleEmojis ?? 'Emojis', { placement: 'top', delay: 300 })
 				.onClick(() => {
 					dialogState.emojiMode = !dialogState.emojiMode;
 					this.updateDesktopSearchMode();
 				});
 			this.emojiModeButton.extraSettingsEl.tabIndex = 0;
+			
+			if (this.plugin.settings.enableBrandIcons) {
+				this.brandModeButton = new ExtraButtonComponent(buttonContainerEl)
+					.setTooltip(STRINGS.iconPicker.toggleBrands ?? 'Brands', { placement: 'top', delay: 300 })
+					.onClick(() => {
+						dialogState.brandMode = !dialogState.brandMode;
+						this.updateDesktopSearchMode();
+					});
+				this.brandModeButton.extraSettingsEl.tabIndex = 0;
+				this.iconManager.setEventListener(this.brandModeButton.extraSettingsEl, 'pointerdown', event => event.preventDefault());
+			}
+
+			if (this.plugin.settings.enableExtendedIcons) {
+				this.extendedModeButton = new ExtraButtonComponent(buttonContainerEl)
+					.setTooltip(STRINGS.iconPicker.toggleExtended ?? 'Extended', { placement: 'top', delay: 300 })
+					.onClick(() => {
+						dialogState.extendedMode = !dialogState.extendedMode;
+						this.updateDesktopSearchMode();
+					});
+				this.extendedModeButton.extraSettingsEl.tabIndex = 0;
+				this.iconManager.setEventListener(this.extendedModeButton.extraSettingsEl, 'pointerdown', event => event.preventDefault());
+			}
+			
 			this.iconManager.setEventListener(this.iconModeButton.extraSettingsEl, 'pointerdown', event => {
 				event.preventDefault(); // Prevent focus theft
 			});
@@ -574,25 +621,14 @@ export default class IconPicker extends Modal {
 		this.emojiModeButton.setIcon(dialogState.emojiMode ? 'lucide-smile' : 'lucide-circle');
 		this.iconModeButton.extraSettingsEl.toggleClass('iconic-mode-selected', dialogState.iconMode);
 		this.emojiModeButton.extraSettingsEl.toggleClass('iconic-mode-selected', dialogState.emojiMode);
-
-		if (dialogState.iconMode && dialogState.emojiMode) {
-			this.setTitle(this.items.length === 1
-				? STRINGS.iconPicker.changeMix
-				: STRINGS.iconPicker.changeMixes.replace('{#}', this.items.length.toString())
-			);
-			this.searchField.setPlaceholder(STRINGS.iconPicker.searchMix);
-		} else if (dialogState.emojiMode) {
-			this.setTitle(this.items.length === 1
-				? STRINGS.iconPicker.changeEmoji
-				: STRINGS.iconPicker.changeEmojis.replace('{#}', this.items.length.toString())
-			);
-			this.searchField.setPlaceholder(STRINGS.iconPicker.searchEmojis);
-		} else {
-			this.setTitle(this.items.length === 1
-				? STRINGS.iconPicker.changeIcon
-				: STRINGS.iconPicker.changeIcons.replace('{#}', this.items.length.toString())
-			);
-			this.searchField.setPlaceholder(STRINGS.iconPicker.searchIcons);
+		
+		if (this.brandModeButton) {
+			this.brandModeButton.setIcon(dialogState.brandMode ? 'lucide-award' : 'lucide-circle');
+			this.brandModeButton.extraSettingsEl.toggleClass('iconic-mode-selected', dialogState.brandMode);
+		}
+		if (this.extendedModeButton) {
+			this.extendedModeButton.setIcon(dialogState.extendedMode ? 'lucide-shapes' : 'lucide-circle');
+			this.extendedModeButton.extraSettingsEl.toggleClass('iconic-mode-selected', dialogState.extendedMode);
 		}
 
 		this.updateSearchResults();
@@ -603,7 +639,11 @@ export default class IconPicker extends Modal {
 	 */
 	private updateColorPicker(): void {
 		this.colorPickerPaused = true;
-		this.colorPicker.setValueRgb(ColorUtils.toRgbObject(this.color));
+		let displayColor = this.color;
+		if (!displayColor && this.icon && BRAND_ICONS.has(this.icon)) {
+			displayColor = BRAND_ICONS.get(this.icon)!.brandColor;
+		}
+		this.colorPicker.setValueRgb(ColorUtils.toRgbObject(displayColor));
 		this.colorPickerPaused = false;
 		this.updateColorTooltip();
 	}
@@ -620,6 +660,8 @@ export default class IconPicker extends Modal {
 			} else {
 				tooltip = this.color;
 			}
+		} else if (!this.color && this.icon && BRAND_ICONS.has(this.icon)) {
+			tooltip = `Brand color: ${BRAND_ICONS.get(this.icon)!.brandColor}`;
 		}
 
 		// Update tooltip instantly if cursor is hovering over color picker
@@ -637,9 +679,19 @@ export default class IconPicker extends Modal {
 		const query = this.searchField.getValue();
 		const fuzzySearch = prepareFuzzySearch(query);
 		const matches: [score: number, iconEntry: [string, string]][] = [];
-		const iconEntries = [
+		
+		const formatIconName = (id: string) => {
+			const tidy = id.replace(/^ph-/, '').replaceAll('-', ' ');
+			return (tidy[0]?.toUpperCase() + tidy.slice(1)) || '';
+		};
+
+		const iconEntries: [string, string][] = [
 			...(this.plugin.settings.dialogState.iconMode ? ICONS : []),
 			...(this.plugin.settings.dialogState.emojiMode ? EMOJIS : []),
+			...(this.plugin.settings.dialogState.brandMode && this.plugin.settings.enableBrandIcons
+				? [...BRAND_ICONS.entries()].map(([id, d]) => [id, d.name] as [string, string]) : []),
+			...(this.plugin.settings.dialogState.extendedMode && this.plugin.settings.enableExtendedIcons
+				? [...EXTENDED_ICONS.entries()].map(([id]) => [id, formatIconName(id)] as [string, string]) : []),
 		];
 
 		// Search all icon names
@@ -703,6 +755,56 @@ export default class IconPicker extends Modal {
 		if (this.searchResults.length === 0) {
 			this.searchResultsSetting.addExtraButton(button => {
 				button.extraSettingsEl.addClasses(['iconic-invisible', 'iconic-search-result']);
+			});
+		}
+		
+		this.updateHistory();
+	}
+
+	private updateHistory(): void {
+		if (!this.historySetting || !this.historyHeading) return;
+
+		const history = this.plugin.settings.iconHistory;
+		const query = this.searchField.getValue();
+		
+		// Hide history if searching or if empty
+		if (history.length === 0 || query) {
+			this.historySetting.settingEl.hide();
+			this.historyHeading.hide();
+			return;
+		}
+		
+		this.historySetting.settingEl.show();
+		this.historyHeading.show();
+		
+		this.historySetting.clear();
+		for (const icon of history) {
+			let iconName = icon;
+			if (ICONS.has(icon)) iconName = ICONS.get(icon)!;
+			else if (EMOJIS.has(icon)) iconName = EMOJIS.get(icon)!;
+			else if (BRAND_ICONS.has(icon)) iconName = BRAND_ICONS.get(icon)!.name;
+			else if (EXTENDED_ICONS.has(icon)) {
+				const tidy = icon.replace(/^ph-/, '').replaceAll('-', ' ');
+				iconName = (tidy[0]?.toUpperCase() + tidy.slice(1)) || '';
+			}
+			
+			this.historySetting.addExtraButton(iconButton => {
+				iconButton.setTooltip(iconName, {
+					delay: 300,
+					placement: Platform.isPhone ? 'top' : 'bottom',
+				});
+				const iconEl = iconButton.extraSettingsEl;
+				iconEl.addClass('iconic-search-result');
+				iconEl.tabIndex = -1;
+
+				this.iconManager.refreshIcon({ icon: icon, color: this.color ?? null }, iconEl, () => {
+					this.closeAndSave(icon, this.color);
+				});
+
+				if (Platform.isPhone) this.iconManager.setEventListener(iconEl, 'contextmenu', () => {
+					navigator.vibrate?.(100);
+					displayTooltip(iconEl, iconName, { placement: 'top' });
+				});
 			});
 		}
 	}
@@ -771,6 +873,7 @@ export default class IconPicker extends Modal {
 	 * Close dialog while passing icon & color to original callback.
 	 */
 	private closeAndSave(icon: string | null | undefined, color: string | null | undefined): void {
+		if (icon) this.plugin.addToIconHistory(icon);
 		if (this.callback) {
 			this.callback(icon ?? null, color ?? null);
 		} else if (this.multiCallback) {
