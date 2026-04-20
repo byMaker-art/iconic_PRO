@@ -77,12 +77,12 @@ export default class FileIconManager extends IconManager {
 			this.startDragSelect(e);
 		});
 		
-		this.setEventListener(activeDocument, 'mousemove', e => {
+		this.setEventListener(activeDocument as unknown as HTMLElement, 'mousemove', e => {
 			if (!this.dragSelectState.active) return;
 			this.updateDragSelect(e);
 		});
 		
-		this.setEventListener(activeDocument, 'mouseup', () => {
+		this.setEventListener(activeDocument as unknown as HTMLElement, 'mouseup', () => {
 			if (!this.dragSelectState.active) return;
 			this.endDragSelect();
 		});

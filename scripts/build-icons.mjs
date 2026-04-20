@@ -37,7 +37,17 @@ async function fetchLucideBaseline() {
     });
   }
 
-  const data = await fetchUrl('https://unpkg.com/lucide@latest/icons.json');
+  let data = "{}";
+  try {
+    data = await fetchUrl('https://unpkg.com/lucide-static@latest/tags.json');
+  } catch (err) {
+    try {
+      data = await fetchUrl('https://unpkg.com/lucide@latest/tags.json');
+    } catch (err2) {
+      console.warn("Could not download Lucide baseline. Skipping deduplication.", err2.message);
+    }
+  }
+
   const parsed = JSON.parse(data);
   const keys = Object.keys(parsed).map(k => `lucide-${k}`);
   await fs.writeFile(p, JSON.stringify(keys, null, 2));
@@ -145,6 +155,8 @@ async function run() {
     const fallbackTs = `export const EXTENDED_ICONS = new Map<string, string>();\n`;
     await fs.writeFile(path.join(iconsDir, 'ExtendedIcons.ts'), fallbackTs);
   }
+  
+  process.exit(0);
 }
 
 run().catch(e => {
